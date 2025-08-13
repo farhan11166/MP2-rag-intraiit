@@ -64,7 +64,7 @@ st.markdown("Extract and summarize research papers with AI-powered efficiency.")
 
 # Input for PDF URL
 #pdf_url = st.text_input("🔗 Add the .pdf file or arxiv", 
-#                        placeholder="")
+#                    placeholder="")
 pdf_file=st.file_uploader("Choose a file", type=["pdf", "txt", "csv"])
 
 # Placeholder for status messages
@@ -135,20 +135,19 @@ if st.button("🚀 Summarize PDF"):
                             mime="application/markdown"
                         )
                 else:
-                    status_placeholder.error("❌ Failed to process the PDF. Please check the URL and try again.")
+                    status_placeholder.error("❌ Failed to process the PDF. Please check the file and try again")
             except requests.exceptions.Timeout:
                 status_placeholder.error("⚠️ Request timed out. Please try again later.")
             except Exception as e:
                 status_placeholder.error(f"⚠️ An error occurred: {str(e)}")
     else:
-        status_placeholder.warning("⚠️ Please enter a valid Arxiv PDF URL.")
+        status_placeholder.warning("⚠️ Please drop a valid file format(.pdf)")
 
 # Add helpful instructions at the bottom
 st.markdown("---")
 st.markdown("""
 ### 📝 Notes:
 - Processing typically takes 3-5 minutes depending on paper length
-- Only Arxiv PDF URLs are supported
 - The summary is structured into key sections for better readability
-- You can download the summary as a markdown file
+- You can download the summary as a pdf file
 """)

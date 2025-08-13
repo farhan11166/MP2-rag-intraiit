@@ -1,14 +1,30 @@
+# Standard library imports
 import os
+import json
 import logging
-import requests
-import fitz
 import asyncio
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from pydantic import BaseModel
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+
+# Third-party libraries
+import requests
+import numpy as np
+import fitz  # PyMuPDF
+import PyPDF2
+import faiss
 from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
+from pydantic import BaseModel
+from fastapi import FastAPI, UploadFile, File, HTTPException
+
+# Machine learning & NLP
+from sentence_transformers import SentenceTransformer
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import HumanMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+# CrewAI
+from crewai import Agent, Task, Crew, LLM
+
 
 # Load environment variables
 load_dotenv("a.env")
@@ -154,6 +170,7 @@ async def generate_final_summary(combined_chunks):
             - "Performance Analysis" can include results, metrics, evaluation criteria, or observations.
             - "Optimization Techniques" can cover improvements, refinements, troubleshooting, or alternative methods.
     - Ignore irrelevant theory, background, and unrelated narrative unless needed for clarity.
+    -May write the author name
     - Maintain precision, factual correctness, and a professional tone.
     - Present information in a way that is **logical, readable, and actionable**.
     - Do not fabricate information — use only what is in the provided content.
@@ -165,6 +182,7 @@ async def generate_final_summary(combined_chunks):
     except Exception as e:
         logger.error(f"Final summary error: {e}")
         return f"Error generating final summary:"
+
 
 
 if __name__ == "__main__":
