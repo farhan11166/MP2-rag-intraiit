@@ -4,6 +4,7 @@ import time
 import markdown
 from weasyprint import HTML
 import io
+import json
 # Streamlit UI setup
 st.set_page_config(page_title="📄 AI-Powered PDF Summarizer", layout="wide")
 st.markdown("""
@@ -78,8 +79,8 @@ def format_section(title, content):
         <div class="section-content">{content}</div>
     </div>
     """
-
 # Add a spinner and professional feedback system
+textforbot=""
 if st.button("🚀 Summarize PDF"):
     if pdf_file:
         with st.spinner("⏳ Processing... This may take a few minutes."):
@@ -98,11 +99,21 @@ if st.button("🚀 Summarize PDF"):
                 
                 if response.status_code == 200:
                     data = response.json()
+                    
                     if "error" in data:
                         status_placeholder.error(f"❌ {data['error']}")
                     else:
                         summary = data.get("summary", "No summary generated.")
                         status_placeholder.success("✅ Summary Ready!")
+                        textforbot = data.get("textforbot", [])
+                        print(summary)
+                        print(textforbot)
+                        print(type(textforbot))
+                        if not isinstance(textforbot, list):
+                                
+                                textforbot = [textforbot]  # convert single string to list
+                                context_messages = [m for m in textforbot if m.strip()]
+
                         
                         # Split the summary into sections and display them
                         sections = summary.split("#")[1:]  # Skip empty first split
@@ -141,13 +152,4 @@ if st.button("🚀 Summarize PDF"):
             except Exception as e:
                 status_placeholder.error(f"⚠️ An error occurred: {str(e)}")
     else:
-        status_placeholder.warning("⚠️ Please drop a valid file format(.pdf)")
-
-# Add helpful instructions at the bottom
-st.markdown("---")
-st.markdown("""
-### 📝 Notes:
-- Processing typically takes 3-5 minutes depending on paper length
-- The summary is structured into key sections for better readability
-- You can download the summary as a pdf file
-""")
+        status_placeholder.warning("⚠️ Please drop a valid file format(.pdf)") 

@@ -10,11 +10,10 @@ from dataclasses import dataclass
 import requests
 import numpy as np
 import fitz  # PyMuPDF
-import PyPDF2
 import faiss
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException,Request
 
 # Machine learning & NLP
 from sentence_transformers import SentenceTransformer
@@ -24,6 +23,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 # CrewAI
 from crewai import Agent, Task, Crew, LLM
+from ragbot import Config,VectorStore
 
 
 # Load environment variables
@@ -48,12 +48,15 @@ app = FastAPI()
 
 class URLRequest(BaseModel):
     url: str
-
+class ChatPayload(BaseModel):
+    messages: List[str]
+    question: str
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "FastAPI backend is running!"}
 
 @app.post("/summarize_arxiv/")
+
 async def summarize_arxiv(file: UploadFile = File(...)):
     """Download PDF, extract text, summarize with Gemini."""
     try:
@@ -66,8 +69,11 @@ async def summarize_arxiv(file: UploadFile = File(...)):
         text = extract_text_from_pdf(temp_pdf_path)
         if not text:
             raise HTTPException(status_code=400, detail="No text extracted from PDF")
-        summary = await summarize_text_parallel(text)
-        return {"summary": summary}    
+        data = await summarize_text_parallel(text)
+        summary=data[0]
+        textforbot=data[1]
+        return {"summary": summary,
+                "textforbot": textforbot }    
 
 
 
@@ -78,10 +84,7 @@ async def summarize_arxiv(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Error: {e}")
         return {"error": "Failed to process PDF"}
-
-
-
-
+    
 def extract_text_from_pdf(pdf_path):
     """Extract text from a PDF file."""
     try:
@@ -133,7 +136,7 @@ async def summarize_text_parallel(text):
 
     combined_text = "\n\n".join(f"Section {i+1}:\n{s}" for i, s in enumerate(summaries))
 
-    return await generate_final_summary(combined_text)
+    return [await generate_final_summary(combined_text),summaries]
 
 async def summarize_chunk_wrapper(chunk, chunk_id, total_chunks):
     """Summarize one chunk using Gemini."""
@@ -182,6 +185,54 @@ async def generate_final_summary(combined_chunks):
     except Exception as e:
         logger.error(f"Final summary error: {e}")
         return f"Error generating final summary:"
+@app.post("/chat/")
+
+async def chat_endpoint(request: ChatPayload):
+    logger.info(f"{request.messages}")
+    logger.info(f"{request.messages}")
+
+    if not request.messages:
+        return {"answer": "I don't know — no context provided."}
+    if not request.question.strip():
+        return {"answer": "Please provide a valid question."}
+    context = request.messages
+    question=request.question  
+    Configg=Config()
+    VecStore=VectorStore(Configg.embedding_model)
+    logger.info(f"Number of context chunks added: {len(context)}")
+    VecStore.add_texts(context)
+    matchedcontext=VecStore.similarity_search(question,k=Configg.max_search_results)
+    api_chatkey=os.getenv("GOOGLE_API_KEYY")
+    chat = ChatGoogleGenerativeAI(
+            api_key=api_chatkey,
+            model="gemini-2.5-flash", 
+            max_output_tokens=5000
+        )
+    top_chunks = [item['text'] for item in matchedcontext]
+    context_text = "\n".join(top_chunks)
+    promptt=f"""You are a helpful and knowledgeable assistant. Using only the information provided in the CONTEXT below, answer the user’s QUESTION. 
+        If you cannot find the answer in the context, reply with “I don't know” — do not make up an answer.
+
+        CONTEXT:
+        {context_text}
+
+        QUESTION:
+        {question}
+
+        Answer clearly and concisely:"""
+     
+
+    try:
+            message = HumanMessage(content=promptt)
+            response = await chat.ainvoke([message])
+            return {"answer": response.content}
+    except Exception as e:
+            logger.error(f"Final summary error: {e}")
+            return f"Error generating final summary:"
+
+
+
+
 
 
 
