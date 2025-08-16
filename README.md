@@ -1,6 +1,6 @@
 # 📄 AI-Powered PDF Summarizer
 
-🚀 **AI-Powered PDF Summarizer** is a tool that extracts and summarizes **research papers** from **ArXiv PDFs** using **Ollama (Gemma 3 LLM)**. The system provides structured, downloadable summaries to help researchers and professionals quickly grasp key findings.
+🚀 **AI-Powered PDF Summarizer** is a tool that extracts and summarizes **research papers** from **Uploaded PDFs** using **gemini-1.5-flash**. The system provides structured, downloadable summaries to help researchers and professionals quickly grasp key findings.
 
 ![PDF Summarizer UI](https://github.com/arjunprabhulal/gemma3_pdf_summarizer/raw/main/PDF_Summarizer.png)
 
@@ -8,7 +8,7 @@
 
 ## 🛠 Features
 
-- 🌐 **Input an ArXiv PDF URL** to fetch and summarize papers.
+- 🌐 **Upload a research paper pdf** to fetch and summarize papers.
 - 📑 **Extracts technical content** (architecture, implementation, results).
 - 🔍 **Optimized for large text processing** with **parallel summarization**.
 - 🎨 **Modern UI** built with **Streamlit**.
@@ -22,18 +22,17 @@
 |------------------|------------|
 | **Frontend**     | [Streamlit](https://streamlit.io/) |
 | **Backend**      | [FastAPI](https://fastapi.tiangolo.com/) |
-| **LLM Platform** | [Ollama](https://ollama.com/) |
-| **LLM Model**    | [Google Gemma 3](https://developers.googleblog.com/en/introducing-gemma3/) |
+| **LLM Model**    | [Google Gemma 3](https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/1-5-flash) |
 | **PDF Processing** | [PyMuPDF (fitz)](https://pymupdf.readthedocs.io/) |
 | **Text Chunking** | [LangChain RecursiveCharacterTextSplitter](https://python.langchain.com/docs/modules/data_connection/document_transformers/text_splitters/) |
 ---
 
 ## 🎬 Demo
 
-1️⃣ **Enter an ArXiv PDF URL**  
+1️⃣ **Upload a pdf from your local device **  
 2️⃣ **Click "Summarize PDF"** 🚀  
 3️⃣ **Get a structured summary** with **technical insights** 📝  
-4️⃣ **Download as Markdown** 📥  
+4️⃣ **Download summary as Pdf** 📥  
 
 ---
 
@@ -42,8 +41,8 @@
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/arjunprahulal/gemma3_pdf_summarizer.git
-cd gemma3_pdf_summarizer
+git clone https://github.com/farhan11166/MP2-rag-intraiit
+cd MP2-rag-intraiit
 
 ```
 
@@ -53,20 +52,12 @@ cd gemma3_pdf_summarizer
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Install Ollama and Gemma 3 LLM
+### 3️⃣ SET GOOGLE GEMINI AND EXA API KEY in a.env file
 
 
-Install Ollama - MacOS/Linux
+GOOGLE_API_KEY=[YOUR-API-KEY]
+EXA_API_KEY=[YOUR-API-KEY]
 
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
-
-```
-
-Download Gemma 3 Model
-
-```bash
-ollama pull gemma3:27b
 ```
 
 ### 3️⃣ Start the Backend (FastAPI)
@@ -97,14 +88,15 @@ Response:
 ```
 
 ### 🔹 Summarize
-Summarize an ArXiv Paper
+Summarize 
 ```
-POST /summarize_arxiv/
+POST /summarize/
 ```
 Request Body:
 ```
 {
-  "url": "https://arxiv.org/pdf/2401.02385.pdf"
+  "filename": "example.pdf",
+  "content": "<base64-encoded-pdf>"
 }
 ```
 Response:
