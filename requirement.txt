@@ -2,14 +2,15 @@ streamlit
 requests
 markdown
 weasyprint
-uvicorn
 numpy
 PyMuPDF
 faiss-cpu
 python-dotenv
 pydantic
 fastapi
+uvicorn
 sentence-transformers
 langchain
-langchain-core
 langchain-google-genai
+crewai
+exa-py
