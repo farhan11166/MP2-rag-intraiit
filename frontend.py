@@ -5,11 +5,11 @@ import markdown
 from weasyprint import HTML
 import io
 import json
-from crewai import LLM
-# Streamlit UI setup
-st.set_page_config(page_title="📚 AI-Powered PDF Summarizer", layout="wide")
 
-# Enhanced CSS styling
+# Streamlit UI setup
+st.set_page_config(page_title="🤖 Bhutoria AI", layout="wide")
+
+
 st.markdown("""
     <style>
         .main > div {
@@ -180,8 +180,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header
-st.title("📚 AI-Powered Document Summarizer with Citations")
-st.markdown("Extract, summarize, and research documents with AI-powered analysis and web citations.")
+st.title("🤖 Bhutoria AI")
+st.markdown("Extract, summarize, and research documents with Bhutoria")
 
 # Input validation function
 def validate_file(file):
@@ -309,7 +309,7 @@ if process_button and file_valid and not st.session_state.processing:
             
             # Make API call with longer timeout for agent processing
             response = safe_api_call(
-                "http://localhost:8000/summarize/",
+                "http://localhost:8000/summarize_arxiv/",
                 files=files,
                 timeout=600  # 10 minutes timeout for agent processing
             )
@@ -602,7 +602,7 @@ if st.checkbox("Show Debug Info", help="For troubleshooting purposes"):
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #666; font-size: 14px;">
-    📚 AI-Powered Document Analysis | 🔗 Web Citations | 🤖 CrewAI Powered<br>
+    📚 Bhutoria Document Analysis | 🔗 Web Citations | 🤖 CrewAI Powered<br>
     Advanced document summarization with intelligent web research and citation integration.
 </div>
 """, unsafe_allow_html=True)
