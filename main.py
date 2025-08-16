@@ -16,10 +16,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from models import ChatRequest, SummaryResponse, ChatResponse, ErrorResponse
-from agents import enhanced_summarization_with_citations
-
-
-
+from agents import enhanced_summarization_with_citations,search_web_content
+from crewai import LLM
 
 from vector_store import VectorStore
 from agents import enhanced_summarization_with_citations
@@ -183,7 +181,7 @@ async def chat_with_document(request: ChatRequest):
         web_context = ""
         web_sources = []
         try:
-            web_results = search_web_content(request.question, num_results=3)
+            web_results = search_web_content.run(query=request.question, num_results=3)
             if web_results:
                 web_context = "\n".join([
                     f"Source: {r['title']}\nURL: {r['url']}\nContent: {r['content'][:300]}" 

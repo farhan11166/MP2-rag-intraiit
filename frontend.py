@@ -5,7 +5,7 @@ import markdown
 from weasyprint import HTML
 import io
 import json
-
+from crewai import LLM
 # Streamlit UI setup
 st.set_page_config(page_title="📚 AI-Powered PDF Summarizer", layout="wide")
 

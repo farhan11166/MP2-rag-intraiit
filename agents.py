@@ -5,13 +5,13 @@ from crewai.tools import tool
 from typing import Dict, Any, List
 import traceback
 import os
+import json
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from exa_py import Exa
-
-
-from llm_setup import crew_llm, chat_model, basic_summarization
+from crewai import LLM
+from llm_setup import basic_summarization,crew_llm,ChatGoogleGenerativeAI
 from helpers import extract_key_topics
 
 logger = logging.getLogger(__name__)
@@ -223,7 +223,7 @@ async def enhanced_summarization_with_citations(full_text: str, filename: str) -
         citations = []
         try:
             # Get web results from the search tool calls
-            web_results = search_web_content(" ".join(key_topics[:2]), num_results=5)
+            web_results = search_web_content.run(query=" ".join(key_topics[:2]), num_results=5)
             for idx, result in enumerate(web_results, 1):
                 if result.get('title') and result.get('url'):
                     citations.append({
