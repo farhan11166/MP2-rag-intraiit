@@ -2,7 +2,7 @@
 
 🚀 **AI-Powered PDF Summarizer** is a tool that extracts and summarizes **research papers** from **Uploaded PDFs** using **gemini-1.5-flash**. The system provides structured, downloadable summaries to help researchers and professionals quickly grasp key findings.
 
-![PDF Summarizer UI](https://github.com/arjunprabhulal/gemma3_pdf_summarizer/raw/main/PDF_Summarizer.png)
+![PDF Summarizer UI](https://github.com/farhan11166/MP2-rag-intraiit/blob/main/PDF_SUMMARIZER.png)
 
 ---
 
