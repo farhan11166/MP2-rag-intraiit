@@ -442,7 +442,7 @@ async def basic_summarization(full_text: str) -> str:
 def health_check(): 
     return {"status": "ok", "message": "AI Document Summarizer API is running!"}
 
-@app.post("/summarize_arxiv/", response_model=SummaryResponse, responses={500: {"model": ErrorResponse}}, summary="Summarize Document with Citations")
+@app.post("/summarize/", response_model=SummaryResponse, responses={500: {"model": ErrorResponse}}, summary="Summarize Document with Citations")
 async def summarize_and_index_document(file: UploadFile = File(...)):
     """Summarize uploaded document with web citations"""
     

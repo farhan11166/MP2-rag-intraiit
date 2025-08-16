@@ -309,7 +309,7 @@ if process_button and file_valid and not st.session_state.processing:
             
             # Make API call with longer timeout for agent processing
             response = safe_api_call(
-                "http://localhost:8000/summarize_arxiv/",
+                "http://localhost:8000/summarize/",
                 files=files,
                 timeout=600  # 10 minutes timeout for agent processing
             )
