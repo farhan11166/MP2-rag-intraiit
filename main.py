@@ -17,14 +17,18 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from models import ChatRequest, SummaryResponse, ChatResponse, ErrorResponse
 from agents import enhanced_summarization_with_citations
-from crewai import Agent, Task, Crew, LLM
-from crewai.tools import tool
+
+
+
+
 from vector_store import VectorStore
-from exa_py import Exa
-
-
 from agents import enhanced_summarization_with_citations
-
+from llm_setup import chat_model
+from helpers import (
+    extract_text_from_pdf,
+    extract_text_from_txt,
+    split_text_into_chunks
+)
 
 
 load_dotenv("a.env")
@@ -81,111 +85,11 @@ except Exception as e:
 
 # --- Enhanced Exa Search Tool ---
 # --- Helper Functions ---
-def extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract text from PDF with improved error handling"""
-    try:
-        doc = fitz.open(pdf_path)
-        text = ""
-        for page_num, page in enumerate(doc):
-            try:
-                page_text = page.get_text("text")
-                text += page_text + "\n"
-            except Exception as e:
-                logger.warning(f"Error extracting text from page {page_num}: {e}")
-                continue
-        doc.close()
-        logger.info(f"Extracted {len(text)} characters from PDF: {os.path.basename(pdf_path)}")
-        return text
-    except Exception as e:
-        logger.error(f"Failed to extract text from PDF {pdf_path}: {e}")
-        return ""
 
-def extract_text_from_txt(file_path: str) -> str:
-    """Extract text from TXT file"""
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            text = file.read()
-        logger.info(f"Extracted {len(text)} characters from TXT file")
-        return text
-    except Exception as e:
-        logger.error(f"Failed to extract text from TXT file: {e}")
-        return ""
 
-def split_text_into_chunks(text: str) -> List[str]:
-    """Split text into chunks for processing"""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, 
-        chunk_overlap=100,
-        separators=["\n\n", "\n", ". ", " ", ""], 
-        length_function=len,
-    )
-    chunks = text_splitter.split_text(text)
-    logger.info(f"Text split into {len(chunks)} chunks for chat context.")
-    return chunks
-
-def extract_key_topics(text: str) -> List[str]:
-    """Extract key topics from document text for web search"""
-    try:
-        words = text.lower().split()
-        # Filter out common words and find technical terms
-        technical_terms = []
-        skip_words = {"the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "is", "are", "was", "were", "been", "be", "have", "has", "had", "do", "does", "did", "will", "would", "could", "should", "may", "might", "can", "must"}
-        
-        for word in words[:1000]:  # Look at first 1000 words
-            if len(word) > 4 and word not in skip_words and word.isalpha():
-                technical_terms.append(word)
-        
-        # Return most frequent terms as topics
-        from collections import Counter
-        topic_counts = Counter(technical_terms)
-        return [topic for topic, count in topic_counts.most_common(5)]
-    except Exception as e:
-        logger.error(f"Error extracting key topics: {e}")
-        return []
 
 # --- Enhanced Summarization with Citations ---
 
-async def basic_summarization(full_text: str) -> str:
-    """Fallback basic summarization using LangChain model"""
-    try:
-        logger.info("Using basic summarization fallback")
-        
-        if chat_model is None:
-            return "# Error in Summary Generation\n\nChat model not initialized properly."
-        
-        prompt = f"""
-        Create a comprehensive summary of the following document. Structure your response with clear sections and provide detailed analysis:
-
-        Document Content:
-        {full_text}
-
-        Please structure your summary as follows:
-        # Document Summary
-
-        ## Executive Summary
-        [Provide a brief overview of the main points]
-
-        ## Key Findings
-        [Detail the main discoveries and results]
-
-        ## Methodology
-        [Describe the approaches and methods used]
-
-        ## Technical Details
-        [Include important technical information]
-
-        ## Conclusions
-        [Summarize the main conclusions and implications]
-
-        Make the summary detailed, informative, and well-structured using Markdown formatting.
-        """
-        
-        message = HumanMessage(content=prompt)
-        response = await chat_model.ainvoke([message])
-        return response.content
-    except Exception as e:
-        logger.error(f"Error in basic summarization: {e}")
-        return f"# Error in Summary Generation\n\nAn error occurred while generating the summary: {str(e)}"
 
 # --- API Endpoints ---
 @app.get("/health", summary="Health Check")
