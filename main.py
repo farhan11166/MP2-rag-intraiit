@@ -2,15 +2,12 @@
 import os
 import json
 import logging
-import asyncio
 from typing import List, Dict, Any, Optional
-from dataclasses import dataclass, field
+import asyncio
 import tempfile
 import traceback
 
-import numpy as np
 import fitz  # PyMuPDF
-import faiss
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, HTTPException
